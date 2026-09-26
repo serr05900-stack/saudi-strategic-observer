@@ -24,7 +24,10 @@ export async function GET(req:Request){
    .select("id,event_key,title,category,region,first_seen_at,last_updated_at,importance,status,synopsis,priority_score,alert_level,alert_reason")
    .gte("last_updated_at",since).order("last_updated_at",{ascending:false}).limit(limit);
  if(error)return NextResponse.json({events:[],error:error.message},{status:500});
- const events=(data||[]).map((e:any)=>({...e,topic:topicOf(e)}));
+ const base=(data||[]).map((e:any)=>({...e,topic:topicOf(e)}));
+ const ids=base.map((e:any)=>e.id); const counts=new Map<string,Set<string>>();
+ if(ids.length){const {data:links}=await sb.from("event_items").select("event_id,monitored_items(source_id)").in("event_id",ids);for(const l of links||[]){const sid=(l as any).monitored_items?.source_id;if(sid){if(!counts.has(l.event_id))counts.set(l.event_id,new Set());counts.get(l.event_id)!.add(sid)}}}
+ const events=base.map((e:any)=>({...e,source_count:counts.get(e.id)?.size||0,independent_source_count:counts.get(e.id)?.size||0}));
  const {count:sourceCount}=await sb.from("sources").select("id",{count:"exact",head:true});
  const {count:itemCount}=await sb.from("monitored_items").select("id",{count:"exact",head:true});
  return NextResponse.json({events,sourceCount:sourceCount||0,itemCount:itemCount||0,updatedAt:new Date().toISOString()});
