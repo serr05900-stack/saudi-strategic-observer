@@ -1,8 +1,8 @@
 import {redirect} from "next/navigation";
 import {createClient} from "../../../lib/supabase/server";
 
-export default async function EventPage({params}:{params:Promise<{id:string}>}){
- const {id}=await params;
+export default async function EventPage({params}:any){
+ const p=await params; const id=p.id;
  const sb=await createClient();
  const {data:{user}}=await sb.auth.getUser();
  if(!user)redirect("/login");
