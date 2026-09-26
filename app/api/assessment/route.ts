@@ -18,5 +18,5 @@ export async function POST(req:Request){
  const j=await r.json(); if(!r.ok)return NextResponse.json({error:j.error?.message||"OpenAI request failed"},{status:502}); const rawText=j.output_text||((j.output||[]).map((o:any)=>(o.content||[]).map((x:any)=>x.text||"").join("\n")).join("\n"))||""; let raw=rawText||"{}"; let out:any;try{out=JSON.parse(raw)}catch{out={title:topic,assessment:raw,confirmed_facts:[],analytical_judgments:[],uncertainties:[],watch_items:[],confidence:"medium"}}
  const {data,error}=await sb.from("strategic_assessments").insert({owner_id:user.id,title:out.title||topic,scope:topic,assessment:out.assessment||"",confirmed_facts:out.confirmed_facts||[],analytical_judgments:out.analytical_judgments||[],uncertainties:out.uncertainties||[],watch_items:out.watch_items||[],confidence:out.confidence||"medium",event_ids:eventRows.map((e:any)=>e.id),study_ids:(studies||[]).map((s:any)=>s.id)}).select().single();
  if(error)return NextResponse.json({error:error.message},{status:500});
- return NextResponse.json({assessment:data,events:events||[],studies:studies||[]});
+ return NextResponse.json({assessment:data,events:eventRows,studies:studies||[]});
 }
