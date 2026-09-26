@@ -21,7 +21,7 @@ export async function GET(req:Request){
  const limit=Math.min(Math.max(Number(u.searchParams.get("limit")||160),20),300);
  const since=new Date(Date.now()-hours*3600000).toISOString();
  const {data,error}=await sb.from("events")
-   .select("id,event_key,title,category,region,first_seen_at,last_updated_at,importance,status,synopsis")
+   .select("id,event_key,title,category,region,first_seen_at,last_updated_at,importance,status,synopsis,priority_score,alert_level,alert_reason")
    .gte("last_updated_at",since).order("last_updated_at",{ascending:false}).limit(limit);
  if(error)return NextResponse.json({events:[],error:error.message},{status:500});
  const events=(data||[]).map((e:any)=>({...e,topic:topicOf(e)}));
