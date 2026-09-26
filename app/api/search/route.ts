@@ -5,6 +5,6 @@ export async function GET(req:Request){
  const {searchParams}=new URL(req.url); const q=(searchParams.get("q")||"").trim(); const hours=Math.min(Number(searchParams.get("hours")||720),2160);
  if(!q)return NextResponse.json({items:[]});
  const since=new Date(Date.now()-hours*3600000).toISOString();
- const {data,error}=await sb.from("monitored_items").select("id,title,url,published_at,summary,source_id").eq("owner_id",user.id).gte("published_at",since).ilike("title","%"+q+"%").order("published_at",{ascending:false}).limit(100);
- if(error)return NextResponse.json({error:error.message},{status:500}); return NextResponse.json({items:data||[],query:q});
+ const {data,error}=await sb.from("monitored_items").select("id,title,url,published_at,summary,source_id,event_id").eq("owner_id",user.id).gte("published_at",since).ilike("title","%"+q+"%").order("published_at",{ascending:false}).limit(100);
+ if(error)return NextResponse.json({error:error.message},{status:500}); const items=data||[]; const eventIds=[...new Set(items.map((x:any)=>x.event_id).filter(Boolean))]; let events:any[]=[]; if(eventIds.length){const r=await sb.from("events").select("id,title,category,region,first_seen_at,last_updated_at,importance,status,synopsis,evidence_summary,priority_score,alert_level,alert_reason,parent_event_id").eq("owner_id",user.id).in("id",eventIds); events=r.data||[];} return NextResponse.json({items,events,query:q});
 }
