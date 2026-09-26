@@ -13,7 +13,8 @@ export default async function EventPage({params}:any){
  const {data:items}=ids.length?await sb.from("monitored_items").select("id,title,url,summary,published_at,verification_status,source_id").in("id",ids).order("published_at",{ascending:false}):{data:[]};
  const sourceIds=[...new Set((items||[]).map((x:any)=>x.source_id).filter(Boolean))];
  const {data:sources}=sourceIds.length?await sb.from("sources").select("id,name,url,source_type,region,priority").in("id",sourceIds):{data:[]};
- const {data:analyses}=await sb.from("analyses").select("analysis,model,created_at").eq("event_id",id).eq("owner_id",user.id).order("created_at",{ascending:false}).limit(3);\n const safeAnalyses=analyses||[];
+ const {data:analyses}=await sb.from("analyses").select("analysis,model,created_at").eq("event_id",id).eq("owner_id",user.id).order("created_at",{ascending:false}).limit(3);
+ const safeAnalyses=analyses||[];
  const confidence=event.verification_confidence==="high"?"عالية":event.verification_confidence==="medium"?"متوسطة":event.verification_confidence==="low"?"منخفضة":"غير محددة";
  return <main style={{minHeight:"100vh",background:"#07111f",color:"#e7edf5",fontFamily:"-apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,Arial,sans-serif",padding:"18px",direction:"rtl"}}>
   <div style={{maxWidth:980,margin:"0 auto"}}>
