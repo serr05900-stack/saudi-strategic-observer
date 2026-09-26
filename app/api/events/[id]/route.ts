@@ -12,6 +12,7 @@ export async function GET(req:Request,{params}:{params:{id:string}}){
  const {data:items}=ids.length?await sb.from("monitored_items").select("id,title,url,summary,category,published_at,collected_at,verification_status,source_id").in("id",ids).order("published_at",{ascending:false}):{data:[]};
  const sourceIds=[...new Set((items||[]).map((x:any)=>x.source_id).filter(Boolean))];
  const {data:sources}=sourceIds.length?await sb.from("sources").select("id,name,url,source_type,region,language,priority,last_checked_at").in("id",sourceIds):{data:[]};
+ const {data:children}=await sb.from("events").select("id,title,category,region,first_seen_at,last_updated_at,status,synopsis").eq("parent_event_id",event.id).eq("owner_id",user.id).order("first_seen_at",{ascending:true});
  const {data:analyses}=await sb.from("analyses").select("id,model,analysis,created_at").eq("event_id",event.id).eq("owner_id",user.id).order("created_at",{ascending:false}).limit(5);
- return NextResponse.json({event,items:items||[],sources:sources||[],analyses:analyses||[]});
+ return NextResponse.json({event,items:items||[],sources:sources||[],analyses:analyses||[],children:children||[]});
 }
