@@ -1,11 +1,12 @@
 import {NextResponse} from "next/server";
 import {createClient} from "../../../../lib/supabase/server";
 
-export async function GET(req:Request,{params}:{params:{id:string}}){
+export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
+ const {id}=await params;
  const sb=await createClient();
  const {data:{user}}=await sb.auth.getUser();
  if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});
- const {data:event,error}=await sb.from("events").select("*").eq("id",params.id).eq("owner_id",user.id).maybeSingle();
+ const {data:event,error}=await sb.from("events").select("*").eq("id",id).eq("owner_id",user.id).maybeSingle();
  if(error||!event)return NextResponse.json({error:"Event not found"},{status:404});
  const {data:links}=await sb.from("event_items").select("monitored_item_id,relation").eq("event_id",event.id).eq("owner_id",user.id);
  const ids=(links||[]).map((x:any)=>x.monitored_item_id);
