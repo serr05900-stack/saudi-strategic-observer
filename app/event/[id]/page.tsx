@@ -18,7 +18,7 @@ export default async function EventPage({params}:any){
  const confidence=event.verification_confidence==="high"?"عالية":event.verification_confidence==="medium"?"متوسطة":event.verification_confidence==="low"?"منخفضة":"غير محددة";
  return <main style={{minHeight:"100vh",background:"#07111f",color:"#e7edf5",fontFamily:"-apple-system,BlinkMacSystemFont,Segoe UI,Tahoma,Arial,sans-serif",padding:"18px",direction:"rtl"}}>
   <div style={{maxWidth:980,margin:"0 auto"}}>
-   <a href="/" style={{color:"#f2d58f",textDecoration:"none"}}>← العودة إلى نبض المرصد</a>
+   <a href="/" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#f2d58f",color:"#07111f",padding:"10px 15px",borderRadius:10,fontWeight:800,textDecoration:"none"}}>← العودة إلى المرصد الرئيسي</a>
    <div style={{marginTop:18,background:"#0b1827",border:"1px solid #29435d",borderRadius:18,padding:20}}>
     <div style={{color:"#8196ab",fontSize:12}}>ملف الحدث · OSINT</div>
     <h1 style={{lineHeight:1.6,fontSize:25}}>{event.title}</h1>
