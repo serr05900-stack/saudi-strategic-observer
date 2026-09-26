@@ -13,10 +13,11 @@ export async function GET(req:Request,{params}:{params:{id:string}}){
  const sourceIds=[...new Set((items||[]).map((x:any)=>x.source_id).filter(Boolean))];
  const {data:sources}=sourceIds.length?await sb.from("sources").select("id,name,url,source_type,region,language,priority,last_checked_at").in("id",sourceIds):{data:[]};
  const {data:children}=await sb.from("events").select("id,title,category,region,first_seen_at,last_updated_at,status,synopsis").eq("parent_event_id",event.id).eq("owner_id",user.id).order("first_seen_at",{ascending:true});
+ const {data:parent}=event.parent_event_id?await sb.from("events").select("id,title,category,region,first_seen_at,last_updated_at,status,synopsis").eq("id",event.parent_event_id).eq("owner_id",user.id).maybeSingle():{data:null};
  const {data:analyses}=await sb.from("analyses").select("id,model,analysis,created_at").eq("event_id",event.id).eq("owner_id",user.id).order("created_at",{ascending:false}).limit(5);
  const sourceCount=new Set((items||[]).map((x:any)=>x.source_id).filter(Boolean)).size;
  const independentSourceCount=sourceCount;
  const ageHours=(Date.now()-new Date(event.first_seen_at).getTime())/3600000;
  const update_kind=event.update_kind||((ageHours<2)?"new":"updated");
- return NextResponse.json({event:{...event,source_count:sourceCount,independent_source_count:independentSourceCount,update_kind,verification_confidence:event.verification_confidence||((analyses||[])[0]?.analysis?.confidence||null)},items:items||[],sources:sources||[],analyses:analyses||[],children:children||[]});
+ return NextResponse.json({event:{...event,source_count:sourceCount,independent_source_count:independentSourceCount,update_kind,verification_confidence:event.verification_confidence||null},items:items||[],sources:sources||[],analyses:analyses||[],children:children||[],parent:parent||null});
 }
