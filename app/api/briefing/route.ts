@@ -18,7 +18,7 @@ export async function POST(req:Request){
  const key=process.env.OPENAI_API_KEY;if(!key)return NextResponse.json({error:"OpenAI key missing"},{status:500});
  const evidence=JSON.stringify({events:events||[],studies:studies||[]}).slice(0,60000);
  const r=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-5.6-luna",input:[{role:"system",content:"أنت محرر إحاطة استخباراتية OSINT خاصة. استخدم الأدلة المرفقة فقط. أنشئ إحاطة عربية عملية ومنظمة: أهم التطورات، لماذا تهم، ما تغير، ما يستحق المتابعة، والدراسات ذات الصلة. لا تخترع وقائع ولا تتنبأ بنتائج سياسية أو عسكرية. افصل الخبر عن التحليل."},{role:"user",content:"الفترة: آخر "+hours+" ساعة\nالأدلة:\n"+evidence}],max_output_tokens:2600})});
- const j=await r.json(); if(!r.ok)return NextResponse.json({error:j.error?.message||"OpenAI request failed"},{status:502}); const content=j.output_text||((j.output||[]).flatMap((o:any)=>o.content||[]).map((x:any)=>x.text||"").join("\n"))||"لم يتم توليد الإحاطة.";
+ const j=await r.json(); if(!r.ok)return NextResponse.json({error:j.error?.message||"OpenAI request failed"},{status:502}); const content=j.output_text||((j.output||[]).map((o:any)=>(o.content||[]).map((x:any)=>x.text||"").join("\n")).join("\n"))||"لم يتم توليد الإحاطة.";
  const {data,error}=await sb.from("briefings").insert({owner_id:user.id,window_hours:hours,title:"الإحاطة الاستراتيجية · آخر "+hours+" ساعة",content,event_count:(events||[]).length}).select().single();
  if(error)return NextResponse.json({error:error.message},{status:500});
  return NextResponse.json({briefing:data,events:events||[],studies:studies||[]});
