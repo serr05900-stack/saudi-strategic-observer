@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {createClient} from "../../../../lib/supabase/server";
 
 export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
- const {id}=await params;
+ const p=await params; const id=p.id;
  const sb=await createClient();
  const {data:{user}}=await sb.auth.getUser();
  if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});
