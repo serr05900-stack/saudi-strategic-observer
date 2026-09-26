@@ -29,7 +29,56 @@ export default function Home(){
  <section className="hero"><div className="eyebrow">OSINT · تحديث آلي كل 15 دقيقة</div><h1>أخبار عميقة تقرأ الإشارات</h1><p>من الخبر الخام إلى التحقق والسياق والخط الزمني والتقدير الاستراتيجي، ثم إلى صياغة قابلة للنشر.</p><div className="meta">{email} · {sources.length} مصدر · {events.length} حدث · {updatedAt&&new Date(updatedAt).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"})}</div></section>
  <nav className="navTabs"><button className={tab==="events"?"active":""} onClick={()=>setTab("events")}><Zap size={15}/> نبض المرصد</button><button className={tab==="studies"?"active":""} onClick={()=>setTab("studies")}><BookOpen size={15}/> الدراسات <span>{studies.length}</span></button><button className={tab==="briefing"?"active":""} onClick={()=>setTab("briefing")}><FileText size={15}/> الإحاطة</button><button className={tab==="assessment"?"active":""} onClick={()=>setTab("assessment")}><Brain size={15}/> التقدير</button><button className={tab==="entities"?"active":""} onClick={()=>{setTab("entities");loadEntities()}}><Users size={15}/> الجهات</button><button className={tab==="sources"?"active":""} onClick={()=>setTab("sources")}><BarChart3 size={15}/> المصادر</button></nav>
  <div className="toolbar"><div className="search"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&archiveSearch()} placeholder="ابحث في الأحداث والأرشيف..."/></div><button className="goldBtn" onClick={archiveSearch}>بحث الأرشيف</button><button className="chip" onClick={load}><RefreshCw size={15}/> {busy?"جاري...":"تحديث"}</button></div>
- {tab==="events"&&<section className="section">{urgent.length>0&&<div className="urgent"><div><b>مركز التنبيهات</b><span className="meta"> · أعلى الأولويات الآن</span></div><div>{urgent.map(e=><button key={e.id} onClick={()=>openEvent(e.id)}>{e.alert_level==="breaking"?"عاجل":"مرتفع"} · {e.title}</button>)}</div></div>}<div className="filterRow">{cats.map(c=><button key={c} className={"chip "+(cat===c?"active":"")} onClick={()=>setCat(c)}>{c==="All"?"الكل":c}</button>)}</div><div className="sectionHead"><div><div className="eyebrow">آخر 24 ساعة</div><h2>نبض المرصد <span className="meta">· {filtered.length} حدث</span></h2></div><button className="goldBtn" onClick={makeBriefing}>إنشاء إحاطة الآن</button></div><div className="grid">{filtered.map(e=><a className="card eventCard" key={e.id} href={"/event/"+e.id}><div className="meta"><span className="tag">{e.category}</span> {e.region} · أهمية {e.importance} {e.alert_level&&e.alert_level!=="normal"&&<span className={"alertTag "+e.alert_level}>{e.alert_level==="breaking"?"عاجل":"أولوية مرتفعة"}</span>}</div><h3>{e.title}</h3><div className="summary">{e.synopsis||"حدث مرصود من مصدر مفتوح — بانتظار طبقة التحقق والتحليل."}</div><div className="eventFoot"><span>{e.update_kind==="new"?"جديد":"تحديث"} · {e.source_count||0} مصدر</span><span>{new Date(e.last_updated_at).toLocaleString("ar-SA")}</span></div></a>)}</div></section>
+ {tab==="events"&&(
+  <section className="section">
+   {urgent.length>0&&(
+    <div className="urgent">
+     <div><b>مركز التنبيهات</b><span className="meta"> · أعلى الأولويات الآن</span></div>
+     <div>
+      {urgent.map((e)=>(
+       <button key={e.id} onClick={()=>openEvent(e.id)}>
+        {e.alert_level==="breaking"?"عاجل":"مرتفع"} · {e.title}
+       </button>
+      ))}
+     </div>
+    </div>
+   )}
+   <div className="filterRow">
+    {cats.map((c)=>(
+     <button key={c} className={"chip "+(cat===c?"active":"")} onClick={()=>setCat(c)}>
+      {c==="All"?"الكل":c}
+     </button>
+    ))}
+   </div>
+   <div className="sectionHead">
+    <div>
+     <div className="eyebrow">آخر 24 ساعة</div>
+     <h2>نبض المرصد <span className="meta">· {filtered.length} حدث</span></h2>
+    </div>
+    <button className="goldBtn" onClick={makeBriefing}>إنشاء إحاطة الآن</button>
+   </div>
+   <div className="grid">
+    {filtered.map((e)=>(
+     <a className="card eventCard" key={e.id} href={"/event/"+e.id}>
+      <div className="meta">
+       <span className="tag">{e.category}</span> {e.region} · أهمية {e.importance}
+       {e.alert_level&&e.alert_level!=="normal"&&(
+        <span className={"alertTag "+e.alert_level}>
+         {e.alert_level==="breaking"?"عاجل":"أولوية مرتفعة"}
+        </span>
+       )}
+      </div>
+      <h3>{e.title}</h3>
+      <div className="summary">{e.synopsis||"حدث مرصود من مصدر مفتوح — بانتظار طبقة التحقق والتحليل."}</div>
+      <div className="eventFoot">
+       <span>{e.update_kind==="new"?"جديد":"تحديث"} · {e.source_count||0} مصدر</span>
+       <span>{new Date(e.last_updated_at).toLocaleString("ar-SA")}</span>
+      </div>
+     </a>
+    ))}
+   </div>
+  </section>
+ )}
  {tab==="studies"&&<section className="section card"><div className="sectionHead"><div><div className="eyebrow">Strategic Studies Intelligence</div><h2>الدراسات الاستراتيجية</h2></div><span className="meta">جمع تلقائي كل 15 دقيقة</span></div><div className="studyGrid">{studies.map(s=><article className="studyCard" key={s.id}><div className="meta">{s.organization||"جهة بحثية"} · {s.published_at?new Date(s.published_at).toLocaleDateString("ar-SA"):""} · ثقة {confidence(s.confidence)}</div><h3>{s.title}</h3><p>{s.summary||"بانتظار التحليل."}</p>{Array.isArray(s.key_findings)&&s.key_findings.length>0&&<div className="intelBox"><b>أبرز النتائج</b><ul>{s.key_findings.slice(0,4).map((x:string,i:number)=><li key={i}>{x}</li>)}</ul></div>}{s.saudi_implications&&<div className="intelBox"><b>الدلالة على السعودية</b><p>{s.saudi_implications}</p></div>}{s.linked_events?.length>0&&<div className="meta">أحداث مرتبطة: {s.linked_events.map((e:any)=>e.title).slice(0,3).join(" · ")}</div>}{s.url&&<a href={s.url} target="_blank" rel="noreferrer">فتح الدراسة الأصلية ↗</a>}</article>)}</div>{!studies.length&&<div className="empty">لم تُجمع دراسة بعد. ستدخل الدراسات الجديدة تلقائيًا عند نجاح دورة الجمع التالية.</div>}</section>}
  {tab==="briefing"&&<section className="section card"><div className="sectionHead"><div><div className="eyebrow">Personal Intelligence Brief</div><h2>الإحاطة الاستراتيجية</h2></div><button className="goldBtn" onClick={makeBriefing}>{busy?"يتم التحضير…":"إعداد إحاطة الآن"}</button></div>{briefing?<div className="briefing"><div className="meta">{new Date(briefing.created_at).toLocaleString("ar-SA")}</div><div className="briefingText">{briefing.content}</div></div>:<div className="empty">اضغط «إعداد إحاطة الآن» لتحويل آخر 24 ساعة إلى إحاطة مركزة: ما حدث، لماذا يهم، ما تغير، وما يستحق المتابعة.</div>}</section>}
  {tab==="assessment"&&<section className="section"><div className="card"><div className="eyebrow">Composite Strategic Assessment</div><h2>التقدير الاستراتيجي</h2><p className="summary">اجمع الأحداث والدراسات حول موضوع واحد، ثم افصل الوقائع عن التقدير وعدم اليقين.</p><div className="ask"><input id="assessmentTopic" className="search" placeholder="مثال: اليمن والبحر الأحمر"/><button className="goldBtn" onClick={makeAssessment}>تحليل مركب</button></div></div>{assessment&&<AssessmentView assessment={assessment}/>} {!assessment&&assessments[0]&&<AssessmentView assessment={assessments[0]}/>}</section>}
