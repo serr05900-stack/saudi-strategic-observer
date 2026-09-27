@@ -25,6 +25,7 @@ function cleanAnalysis(value:any):string{
 }
 import {redirect} from "next/navigation";
 import {createClient} from "../../../lib/supabase/server";
+import TweetWriter from "../TweetWriter";
 
 export default async function EventPage({params}:any){
  const p=await params; const id=p.id;
@@ -59,6 +60,7 @@ export default async function EventPage({params}:any){
     <h2>ملخص الأدلة</h2><p style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#b8c7d5"}}>{cleanAnalysis(event.evidence_summary)||"لم تكتمل طبقة التحليل بعد."}</p>
    </section>
    {safeAnalyses.length>0&&<section style={{marginTop:14,background:"#0b1827",border:"1px solid #29435d",borderRadius:16,padding:18}}><h2>قراءة المرصد</h2>{safeAnalyses.map((a:any,i:number)=><div key={i} style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#d1dbe5"}}>{cleanAnalysis(a.analysis)}</div>)}</section>}
+   <TweetWriter eventId={event.id}/>
    <section style={{marginTop:14,background:"#0b1827",border:"1px solid #1c3045",borderRadius:16,padding:18}}>
     <h2>المصادر</h2>{(sources||[]).map((s:any)=><div key={s.id} style={{padding:"11px 0",borderBottom:"1px solid #1c3045"}}><a href={s.url} target="_blank" rel="noreferrer" style={{color:"#f2d58f"}}>{s.name}</a><div style={{color:"#8196ab",fontSize:12}}>{s.source_type||""} · {s.region||""}</div></div>)}
    </section>
