@@ -98,6 +98,7 @@ export default function Home(){
       <div className="eventFoot">
        <span>{e.update_kind==="new"?"جديد":"تحديث"} · {e.source_count||0} مصدر</span>
        <span>{new Date(e.last_updated_at).toLocaleString("ar-SA")}</span>
+       <button className="tweetQuick" onClick={(ev)=>{ev.stopPropagation();openEvent(e.id)}}>𝕏 تغريدة</button>
       </div>
      </a>
     ))}
