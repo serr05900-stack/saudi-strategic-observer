@@ -1,3 +1,28 @@
+function cleanAnalysis(value:any):string{
+ try{
+  const walk=(v:any):string=>{
+   if(v==null)return "";
+   if(typeof v==="string"){
+    const t=v.trim();
+    if((t.startsWith("{")&&t.endsWith("}"))||(t.startsWith("[")&&t.endsWith("]"))){
+     try{return walk(JSON.parse(t))}catch{}
+    }
+    return t.replace(/\\\\?"/g,'"').trim();
+   }
+   if(Array.isArray(v))return v.map(walk).filter(Boolean).join("\n");
+   if(typeof v==="object"){
+    if(typeof v.text==="string")return walk(v.text);
+    if(typeof v.content==="string")return walk(v.content);
+    const preferred=["summary_ar","assessment","key_points","contradictions","next_watch","analysis","confirmed_facts","analytical_judgments","uncertainties","watch_items"];
+    const parts=preferred.filter(k=>k in v).map(k=>walk(v[k])).filter(Boolean);
+    if(parts.length)return parts.join("\n\n");
+    return Object.entries(v).map(([k,val])=>{const x=walk(val);return x&&k!=="type"?x:""}).filter(Boolean).join("\n");
+   }
+   return "";
+  };
+  return walk(value).replace(/\\s{3,}/g,"\n\n").trim();
+ }catch{return typeof value==="string"?value:"";}
+}
 import {redirect} from "next/navigation";
 import {createClient} from "../../../lib/supabase/server";
 
@@ -33,7 +58,7 @@ export default async function EventPage({params}:any){
     <h2>ما نعرفه</h2><p style={{lineHeight:1.9,color:"#b8c7d5"}}>{event.synopsis||"لا يوجد ملخص بعد."}</p>
     <h2>ملخص الأدلة</h2><p style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#b8c7d5"}}>{event.evidence_summary||"لم تكتمل طبقة التحليل بعد."}</p>
    </section>
-   {safeAnalyses.length>0&&<section style={{marginTop:14,background:"#0b1827",border:"1px solid #29435d",borderRadius:16,padding:18}}><h2>قراءة المرصد</h2>{safeAnalyses.map((a:any,i:number)=><div key={i} style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#d1dbe5"}}>{a.analysis}</div>)}</section>}
+   {safeAnalyses.length>0&&<section style={{marginTop:14,background:"#0b1827",border:"1px solid #29435d",borderRadius:16,padding:18}}><h2>قراءة المرصد</h2>{safeAnalyses.map((a:any,i:number)=><div key={i} style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#d1dbe5"}}>{cleanAnalysis(a.analysis)}</div>)}</section>}
    <section style={{marginTop:14,background:"#0b1827",border:"1px solid #1c3045",borderRadius:16,padding:18}}>
     <h2>المصادر</h2>{(sources||[]).map((s:any)=><div key={s.id} style={{padding:"11px 0",borderBottom:"1px solid #1c3045"}}><a href={s.url} target="_blank" rel="noreferrer" style={{color:"#f2d58f"}}>{s.name}</a><div style={{color:"#8196ab",fontSize:12}}>{s.source_type||""} · {s.region||""}</div></div>)}
    </section>
