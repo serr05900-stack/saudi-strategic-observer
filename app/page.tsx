@@ -99,7 +99,7 @@ function cleanDisplayText(value:any):string{
        <span>{new Date(e.last_updated_at).toLocaleString("ar-SA")}</span>
        <button className="tweetQuick" onClick={(ev)=>{ev.stopPropagation();openEvent(e.id)}}>𝕏 تغريدة</button>
       </div>
-     </a>
+     </article>
     ))}
    </div>
   </section>
