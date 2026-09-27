@@ -55,8 +55,8 @@ export default async function EventPage({params}:any){
     </div>
    </div>
    <section style={{marginTop:14,background:"#0b1827",border:"1px solid #1c3045",borderRadius:16,padding:18}}>
-    <h2>ما نعرفه</h2><p style={{lineHeight:1.9,color:"#b8c7d5"}}>{event.synopsis||"لا يوجد ملخص بعد."}</p>
-    <h2>ملخص الأدلة</h2><p style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#b8c7d5"}}>{event.evidence_summary||"لم تكتمل طبقة التحليل بعد."}</p>
+    <h2>ما نعرفه</h2><p style={{lineHeight:1.9,color:"#b8c7d5"}}>{cleanAnalysis(event.synopsis)||"لا يوجد ملخص بعد."}</p>
+    <h2>ملخص الأدلة</h2><p style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#b8c7d5"}}>{cleanAnalysis(event.evidence_summary)||"لم تكتمل طبقة التحليل بعد."}</p>
    </section>
    {safeAnalyses.length>0&&<section style={{marginTop:14,background:"#0b1827",border:"1px solid #29435d",borderRadius:16,padding:18}}><h2>قراءة المرصد</h2>{safeAnalyses.map((a:any,i:number)=><div key={i} style={{whiteSpace:"pre-wrap",lineHeight:1.9,color:"#d1dbe5"}}>{cleanAnalysis(a.analysis)}</div>)}</section>}
    <section style={{marginTop:14,background:"#0b1827",border:"1px solid #1c3045",borderRadius:16,padding:18}}>
