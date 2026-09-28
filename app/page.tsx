@@ -37,6 +37,7 @@ function cleanDisplayText(value:any):string{
  async function load(){setBusy(true);try{const [er,sr,str,ar]=await Promise.all([fetch("/api/events?hours=24&limit=300",{cache:"no-store"}),fetch("/api/sources",{cache:"no-store"}),fetch("/api/studies",{cache:"no-store"}),fetch("/api/assessments",{cache:"no-store"})]);const e=await er.json(),s=await sr.json(),st=await str.json(),a=await ar.json();setEvents(e.events||[]);setSources(s.sources||[]);setStudies(st.studies||[]);setAssessments(a.assessments||[]);setUpdatedAt(e.updatedAt||"")}finally{setBusy(false)}}
  useEffect(()=>{const sb=createClient();sb.auth.getUser().then(({data})=>setEmail(data.user?.email||""));load();const t=setInterval(load,15*60*1000);return()=>clearInterval(t)},[]);
  const filtered=useMemo(()=>events.filter(e=>(e.topic===cat)&&(!q||(e.title+" "+(e.synopsis||"")).toLowerCase().includes(q.toLowerCase()))&& (priority==="all" || (priority==="high" ? (e.importance>=70 || e.priority_score>=70 || e.alert_level==="high" || e.alert_level==="breaking") : priority==="medium" ? (e.importance>=40 && e.importance<70 && e.priority_score<70 && e.alert_level!=="high" && e.alert_level!=="breaking") : (e.importance<40 && e.priority_score<70 && e.alert_level!=="high" && e.alert_level!=="breaking")))).sort((a,b)=>(b.priority_score||b.importance||0)-(a.priority_score||a.importance||0)||new Date(b.last_updated_at).getTime()-new Date(a.last_updated_at).getTime()),[events,q,cat,priority]);
+ const topEvents=useMemo(()=>filtered.slice(0,40),[filtered]);
  const urgent=events.filter(e=>e.alert_level==="breaking"||e.alert_level==="high").slice(0,5);
  async function openEvent(id:string){setBusy(true);try{const r=await fetch("/api/events/"+id,{cache:"no-store"});const j=await r.json();if(r.ok){setSelected(j);setTweet("");setTweetArabic("")}}finally{setBusy(false)}}
  async function askObserver(){if(!ask.trim())return;setBusy(true);try{const r=await fetch("/api/ask",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({question:ask})});const j=await r.json();setAnswer(j.answer||j.error||"لا توجد إجابة.")}finally{setBusy(false)}}
@@ -77,12 +78,12 @@ function cleanDisplayText(value:any):string{
    <div className="sectionHead">
     <div>
      <div className="eyebrow">آخر 24 ساعة</div>
-     <h2>نبض المرصد <span className="meta">· {filtered.length} حدث</span></h2>
+     <h2>نبض المرصد <span className="meta">· {topEvents.length} من أصل {filtered.length} حدث</span></h2>
     </div>
     <button className="goldBtn" onClick={makeBriefing}>إنشاء إحاطة الآن</button>
    </div>
    <div className="grid">
-    {filtered.map((e)=>(
+    {topEvents.map((e)=>(
      <article className="card eventCard" key={e.id} onClick={()=>openEvent(e.id)}>
       <div className="meta">
        <span className="tag">{e.category}</span> {e.region} · أهمية {e.importance}
